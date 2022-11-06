@@ -1,11 +1,35 @@
 #include <iostream>
 #include <map>
+#include <vector>
+
+class Contact {
+  private:
+    std::string name;
+    std::string number;
+  public:
+    void setName (std::string &in_name) {
+        name = in_name;
+    }
+
+    void setNumber (std::string &in_number) {
+        number = in_number;
+    }
+
+    std::string getNumber () {
+        return number;
+    }
+
+    std::string getName () {
+        return name;
+    }
+};
 
 class Phone {
   private:
-    std::map<std::string, std::string> phonebook;
+    std::vector<Contact> contacts;
   public:
-    static int add (Phone* myPhone) {
+    int add () {
+        Contact* contact = new Contact;
         std::string num = "+7";
         std::string name;
         std::string buffer;
@@ -20,55 +44,59 @@ class Phone {
             }
         }
         num += buffer;
-        std::map<std::string, std::string>::iterator it = myPhone->phonebook.find(num);
-        if (it->first == num) {
-            std::cout << "This number already exists" << std::endl;
-            return 0;
+        contact->setNumber(num);
+        for (int i = 0;i < contacts.size();i++)  {
+            if (contacts[i].getNumber() == num) {
+                std::cout << "This number already exists" << std::endl;
+                return 0;
+            }
         }
         std::cout << "Enter the subscriber's name: ";
         std::cin.ignore();
         std::getline(std::cin,name);
-        myPhone->phonebook.insert(std::pair<std::string, std::string>(num, name));
+        contact->setName(name);
+        contacts.push_back(*contact);
         std::cout << "The entry was successful" << std::endl;
+        delete contact;
         return 1;
   }
-    static int call (Phone* myPhone) {
+    int call () {
         std::string buffer;
         std::cout << "Enter the subscriber's number or name: ";
         std::cin.ignore();
         std::getline(std::cin,buffer);
-        for (std::map<std::string, std::string>::iterator it = myPhone->phonebook.begin();it != myPhone->phonebook.end();it++) {
-            if (it->first == buffer) {
+        for (int i = 0;i < contacts.size();i++) {
+            if (contacts[i].getNumber() == buffer) {
                 std::cout << "CALL" << std::endl;
                 std::cout << buffer << std::endl;
                 return 0;
-            } else if (it->second == buffer) {
+            } else if (contacts[i].getName() == buffer) {
                 std::cout << "CALL" << std::endl;
-                std::cout << it->first << std::endl;
+                std::cout << contacts[i].getNumber() << std::endl;
                 return 1;
             }
         }
         std::cout << "There is no such subscriber" << std::endl;
         return 2;
     }
-    static int sms (Phone* myPhone) {
+    int sms () {
         std::string buffer;
         std::string message;
         std::cout << "Enter the subscriber's number or name to send sms: ";
         std::cin.ignore();
         std::getline(std::cin,buffer);
-        for (std::map<std::string, std::string>::iterator it = myPhone->phonebook.begin();it != myPhone->phonebook.end();it++) {
-            if (it->first == buffer) {
+        for (int i = 0;i < contacts.size();i++) {
+            if (contacts[i].getNumber() == buffer) {
                 std::cout << "Enter your message:" << std::endl;
                 std::cin.ignore();
                 std::getline(std::cin, message);
                 std::cout << "Your message was send to " << buffer << std::endl;
                 return 0;
-            } else if (it->second == buffer) {
+            } else if (contacts[i].getName() == buffer) {
                 std::cout << "Enter your message:" << std::endl;
                 std::cin.ignore();
                 std::getline(std::cin, message);
-                std::cout << "Your message was send to " << it->first << std::endl;
+                std::cout << "Your message was send to " << contacts[i].getNumber() << std::endl;
                 return 1;
             }
         }
@@ -84,11 +112,11 @@ int main() {
         std::cout << "Enter command: ";
         std::cin >> command;
         if (command == "add") {
-            Phone::add(myPhone);
+            myPhone->add();
         } else if (command == "call") {
-            Phone::call(myPhone);
+            myPhone->call();
         } else if (command == "sms") {
-            Phone::sms(myPhone);
+            myPhone->sms();
         } else if (command == "exit") {
             delete myPhone;
             return 0;
